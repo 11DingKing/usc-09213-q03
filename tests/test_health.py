@@ -5,12 +5,14 @@ import unittest
 from http.client import HTTPConnection
 from http.server import ThreadingHTTPServer
 
-from service.main import Handler
+from service.main import create_service, make_handler
 
 
 class HealthTest(unittest.TestCase):
     def test_health(self):
-        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        import tempfile
+        service = create_service(tempfile.mkdtemp(prefix="health-"))
+        server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(service))
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
         try:
